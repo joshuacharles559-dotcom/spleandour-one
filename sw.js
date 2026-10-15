@@ -1,5 +1,5 @@
-const CACHE_NAME = 'spleandour-one-v1';
-const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './app.bundle.gz.b64'];
+const CACHE_NAME = 'spleandour-one-v2';
+const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './app.bundle.part1.txt', './app.bundle.part2.txt', './app.bundle.part3.txt', './app.bundle.part4.txt'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
   self.skipWaiting();
