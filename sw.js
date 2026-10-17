@@ -1,16 +1,21 @@
-const CACHE_NAME = 'spleandour-one-v2';
-const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './app.bundle.part1.txt', './app.bundle.part2.txt', './app.bundle.part3.txt', './app.bundle.part4.txt'];
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
-  self.skipWaiting();
+const V='spl-v4',F=['./','index.html','config.js','shim.js','cloud.js','extras.js','manifest.json','notifications.js'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(V).then(c=>c.addAll(F)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>clients.claim())));
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||u.pathname.startsWith('/.netlify'))return; e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(V).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)))});
+
+self.addEventListener('push', event=>{
+  let data={title:'Spleandour One',body:'Open the app to see updates',url:'./'};
+  try{if(event.data) data=event.data.json();}catch(e){}
+  const title=data.title||'Spleandour One';
+  const options={body:data.body||'',icon:'./icon-192.png',badge:'./icon-192.png',data:{url:data.url||'./'}};
+  event.waitUntil(self.registration.showNotification(title,options));
 });
-self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-    if (response.ok) { const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)); }
-    return response;
-  }).catch(() => event.request.mode === 'navigate' ? caches.match('./index.html') : Response.error())));
+
+self.addEventListener('notificationclick', event=>{
+  event.notification.close();
+  const url = event.notification.data && event.notification.data.url ? event.notification.data.url : './';
+  event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(windowClients=>{
+    for (let i=0;i<windowClients.length;i++){const client=windowClients[i];if(client.url===url && 'focus' in client) return client.focus();}
+    if (clients.openWindow) return clients.openWindow(url);
+  }));
 });

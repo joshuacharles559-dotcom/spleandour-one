@@ -1,19 +1,28 @@
-# Spleandour One
+# Spleandour One: 100% free setup
 
-Spleandour One is an installable, offline-friendly personal dashboard. After the first online visit, the app shell can load without a connection. Dashboard data and local demo accounts are stored in the current browser on the current device.
+Cost: free static site + free push setup possible with Render/Railway free tiers.
 
-## Use the app
+- Hosting: GitHub Pages (free)
+- AI: Puter.js (free for users)
+- Data: saved on-device, with backup/restore
+- Push notifications: use browser Web Push via VAPID keys + a tiny Node.js server
 
-- Open the published site over HTTPS.
-- Create an account with an email and a unique password. This is only a local profile; there is no server account, password recovery, or cross-device sync.
-- Use **⬇** to export a backup and **⬆** to restore one. Keep backup files private.
-- Install the app from the browser's install prompt or menu. On iPhone/iPad, use **Share → Add to Home Screen**.
-- The planner, journal, trackers, calculators, and other local tools work offline after the app has been loaded once.
+## Quick setup
+1. Publish the repo to GitHub Pages.
+2. Generate VAPID keys:
+   `npx web-push generate-vapid-keys --json`
+3. Paste the public key into `config.js` as `pushPublicKey`.
+4. Deploy the tiny push server in `push-server-example/send-push.js` to Render or Railway.
+5. Add the server URL to `config.js` as `pushServerUrl`.
+6. Open the app and click the 🔔 button to subscribe.
 
-AI chat, AI Studio generation, and translation need an AI service and are not connected in this static release. Do not enter sensitive personal or financial information: browser storage is not a secure account system.
+## Free deployment choice
+- GitHub Pages: free
+- Render or Railway: free small tier, often enough for a tiny push server
+- Browser users: free
 
-## Publish with GitHub Pages
+## Important limit
+A GitHub Pages site cannot send push notifications by itself. It needs a server to store subscriptions and send push payloads.
 
-The included GitHub Actions workflow publishes this static app to GitHub Pages whenever changes are pushed to the `main` branch. In repository settings, ensure **Settings → Pages → Build and deployment → Source** is set to **GitHub Actions**. The site is installable only when served over HTTPS (or localhost).
-
-To download the website files, use GitHub's **Code → Download ZIP**. To install the app, open the published HTTPS site in a supported browser and choose **Install app** / **Add to Home Screen**.
+## Example push send
+`curl -X POST https://your-server.example.com/send -H "Content-Type: application/json" -d '{"title":"Test","body":"Hello from owner","url":"https://joshuacharles559-dotcom.github.io/spleandour-one/"}'`

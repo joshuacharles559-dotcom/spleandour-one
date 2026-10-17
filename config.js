@@ -7,5 +7,7 @@ window.CONFIG={
   supabaseUrl:'',      // leave empty: the app is device-only and free
   supabaseKey:'',
   // For Web Push: paste your VAPID public key here after you generate it on your server
-  pushPublicKey:''
+  pushPublicKey:'',
+  // Optional server endpoint to receive subscriptions (deploy the example server and paste its URL)
+  pushServerUrl:''
 };
